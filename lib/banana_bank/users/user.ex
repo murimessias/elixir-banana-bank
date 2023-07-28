@@ -4,7 +4,8 @@ defmodule BananaBank.Users.User do
 
   alias Ecto.Changeset
 
-  @required_params [:name, :password, :email, :cep]
+  @required_params_create [:name, :password, :email, :cep]
+  @required_params_update [:name, :email, :cep]
 
   schema "users" do
     field :name, :string
@@ -16,15 +17,27 @@ defmodule BananaBank.Users.User do
     timestamps()
   end
 
-  def changeset(user \\ %__MODULE__{}, params) do
+  def changeset(params) do
+    %__MODULE__{}
+    |> cast(params, @required_params_create)
+    |> do_validate(@required_params_create)
+    |> add_password_hash()
+  end
+
+  def changeset(user, params) do
     user
-    |> cast(params, @required_params)
-    |> validate_required(@required_params)
+    |> cast(params, @required_params_create)
+    |> do_validate(@required_params_update)
+    |> add_password_hash()
+  end
+
+  defp do_validate(changeset, fields) do
+    changeset
+    |> validate_required(fields)
     |> validate_length(:name, min: 3)
     |> validate_length(:password, min: 6)
     |> validate_format(:email, ~r/@/)
     |> validate_length(:cep, min: 8)
-    |> add_password_hash()
   end
 
   defp add_password_hash(%Changeset{valid?: true, changes: %{password: password}} = changeset) do
