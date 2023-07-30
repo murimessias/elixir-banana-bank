@@ -20,18 +20,18 @@ defmodule BananaBank.Users.User do
   def changeset(params) do
     %__MODULE__{}
     |> cast(params, @required_params_create)
-    |> do_validate(@required_params_create)
+    |> do_validations(@required_params_create)
     |> add_password_hash()
   end
 
   def changeset(user, params) do
     user
     |> cast(params, @required_params_create)
-    |> do_validate(@required_params_update)
+    |> do_validations(@required_params_update)
     |> add_password_hash()
   end
 
-  defp do_validate(changeset, fields) do
+  defp do_validations(changeset, fields) do
     changeset
     |> validate_required(fields)
     |> validate_length(:name, min: 3)
